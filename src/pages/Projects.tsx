@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../api/axios';
+import { toast, Toaster } from 'react-hot-toast';
 
 interface Proyecto {
   id: number;
@@ -21,20 +22,18 @@ export default function Projects() {
   const navigate = useNavigate();
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
 
- //const token = localStorage.getItem('token');
+  const fetchProjects = async () => {
+    try {
+      const res = await axios.get('/projects');
+      setProyectos(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
- const fetchProjects = async () => {
-  try {
-    const res = await axios.get('/projects');
-    setProyectos(res.data);
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-useEffect(() => {
-  fetchProjects();
-}, []);
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
   useEffect(() => {
     const fetchInvitaciones = async () => {
@@ -53,13 +52,14 @@ useEffect(() => {
     try {
       const res = await axios.post('/projects', {
         nombre,
-        descripcion: JSON.stringify([]), // inicializamos vacío
+        descripcion: JSON.stringify([]),
       });
       setProyectos((prev) => [...prev, res.data]);
       setNombre('');
+      toast.success('✅ Proyecto creado exitosamente');
     } catch (err) {
       console.error(err);
-      alert('Error al crear el proyecto');
+      toast.error('❌ Error al crear el proyecto');
     }
   };
 
@@ -67,9 +67,10 @@ useEffect(() => {
     try {
       await axios.delete(`/projects/${id}`);
       setProyectos((prev) => prev.filter((p) => p.id !== id));
+      toast('🗑️ Proyecto eliminado', { icon: '🗑️' });
     } catch (err) {
       console.error(err);
-      alert('Error al eliminar el proyecto');
+      toast.error('❌ Error al eliminar el proyecto');
     }
   };
 
@@ -79,75 +80,97 @@ useEffect(() => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Tus Proyectos</h1>
-        <button onClick={handleLogout} className="text-sm text-red-600 underline">
-          Cerrar sesión
-        </button>
-      </div>
+    <div className="max-w-4xl mx-auto p-8 min-h-screen">
+  <Toaster position="top-right" reverseOrder={false} />
 
-      <form onSubmit={handleCreate} className="space-y-3 mb-6">
-        <input
-          type="text"
-          placeholder="Nombre del proyecto"
-          value={nombre}
-          onChange={(e) => setNombre(e.target.value)}
-          required
-          className="border w-full px-3 py-2"
-        />
-        <button className="bg-blue-600 text-white px-4 py-2 rounded" type="submit">
-          Crear Proyecto
-        </button>
-      </form>
+  <div className="flex justify-between items-center mb-8">
+    <h1 className="text-4xl font-bold">🚀 Tus Proyectos</h1>
+    <button
+      onClick={handleLogout}
+      className="hover:bg-red-600 bg-red-500 px-4 py-2 rounded-lg shadow-md"
+    >
+      Cerrar sesión
+    </button>
+  </div>
 
-      <ul className="space-y-4">
-        {proyectos.map((p) => (
-          <li key={p.id} className="border p-4 rounded shadow-sm">
-            <div className="flex justify-between items-center">
-              <h2
-                className="text-lg font-semibold cursor-pointer text-blue-700 hover:underline"
-                onClick={() => navigate(`/editor/${p.id}`)}
-              >
-                {p.nombre}
-              </h2>
-              <button className="text-sm text-red-500" onClick={() => handleDelete(p.id)}>
-                Eliminar
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-      {invitaciones.length > 0 && (
-  <div className="mt-10">
-    <h2 className="text-xl font-semibold mb-4">📨 Invitaciones pendientes</h2>
-    <ul className="space-y-3">
-      {invitaciones.map((inv) => (
-        <li key={inv.id} className="border p-4 rounded shadow-sm">
-          <p className="text-sm">Proyecto: <strong>{inv.proyectoNombre}</strong></p>
-          <p className="text-sm text-gray-600">Invitado por: {inv.emisorNombre}</p>
-          <div className="flex gap-2 mt-2">
-            <button className="bg-green-500 text-white px-3 py-1 rounded text-sm"
-              onClick={async () => {
-                try {
-                  await axios.post(`/projects/invitations/${inv.id}/accept`);
-                  setInvitaciones((prev) => prev.filter((i) => i.id !== inv.id));
-                  await fetchProjects(); 
-                } catch (err) {
-                  console.error(err);
-                  alert('Error al aceptar la invitación');
-                }
+  <div className="bg-[#0d1614] rounded-2xl p-8 shadow-xl flex flex-col items-center">
+    <form onSubmit={handleCreate} className="flex flex-col items-center gap-4 w-full mb-8">
+      <input
+        type="text"
+        placeholder="Nombre del proyecto"
+        value={nombre}
+        onChange={(e) => setNombre(e.target.value)}
+        required
+        className="w-full max-w-md shadow-md"
+      />
+      <button
+        type="submit"
+        className="w-full max-w-md bg-green-600 hover:bg-green-700 shadow-md py-3 rounded-lg text-lg font-semibold"
+      >
+        Crear
+      </button>
+    </form>
+
+    <div className="w-full flex flex-col items-center gap-6">
+      {proyectos.map((p) => (
+        <div
+          key={p.id}
+          className="bg-[#0a1412] w-full max-w-md p-6 rounded-lg shadow-md hover:shadow-green-400/50 transition-all duration-300 cursor-pointer"
+          onClick={() => navigate(`/editor/${p.id}`)}
+        >
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold text-green-200">{p.nombre}</h2>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(p.id);
               }}
+              className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md text-sm shadow-md"
             >
-              Aceptar
+              Eliminar
             </button>
           </div>
-        </li>
+        </div>
       ))}
-    </ul>
-  </div>
-)}
-
     </div>
+  </div>
+
+  {invitaciones.length > 0 && (
+    <div className="mt-16">
+      <h2 className="text-2xl font-bold mb-6 text-green-100">📨 Invitaciones Pendientes</h2>
+      <div className="flex flex-col items-center gap-6">
+        {invitaciones.map((inv) => (
+          <div
+            key={inv.id}
+            className="bg-[#0a1412] w-full max-w-md p-6 rounded-lg shadow-md hover:shadow-green-400/50 transition-all duration-300 cursor-pointer"
+          >
+            <p className="text-green-300 mb-2">Proyecto: <span className="font-semibold">{inv.proyectoNombre}</span></p>
+            <p className="text-green-500 text-sm mb-4">Invitado por: {inv.emisorNombre}</p>
+            <div className="flex justify-end">
+              <button
+                className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg text-sm font-semibold shadow-md"
+                onClick={async () => {
+                  try {
+                    await axios.post(`/projects/invitations/${inv.id}/accept`);
+                    setInvitaciones((prev) => prev.filter((i) => i.id !== inv.id));
+                    await fetchProjects();
+                    toast.success('🎉 Invitación aceptada');
+                  } catch (err) {
+                    console.error(err);
+                    toast.error('❌ Error al aceptar la invitación');
+                  }
+                }}
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+  
   );
 }
