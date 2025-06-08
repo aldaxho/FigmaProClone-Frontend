@@ -2,7 +2,7 @@
 "use client";
 
 import Konva from "konva";
-import type { KonvaEventObject } from "konva/lib/Node"; // ⬅️ solo tipos
+import type { KonvaEventObject } from "konva/lib/Node"; 
 import { useEffect, useRef, useState } from "react";
 import { Group, Text as KonvaText, Layer, Rect, Stage, Transformer } from "react-konva";
 //import ReactMarkdown from 'react-markdown';
@@ -652,9 +652,9 @@ function closeSketchModal() {
   setPreviewURL(null);
 }
   return (
-    <div className="w-screen h-screen overflow-hidden flex flex-col bg-[#060a09] text-white" onClick={() => setContextMenu(null)}>
+    <div className="w-screen h-screen overflow-hidden flex flex-col bg-transparent text-white" onClick={() => setContextMenu(null)}>
     {/* Header */}
-    <div className="h-16 px-4 bg-[#0a1110] border-b border-[#1a2a28] flex items-center justify-between">
+    <div className="h-16 px-4  border-b border-[#1a2a28] flex items-center justify-between">
       <h1 className="text-xl font-semibold">🎨 Figma Clone Editor</h1>
       <div className="flex items-center gap-2">
         <button onClick={handleSaveProject} className="bg-green-600 text-white px-3 py-1 rounded">
@@ -675,7 +675,7 @@ function closeSketchModal() {
     </div>
 
     {/* Tabs */}
-    <div className="flex bg-[#0a1110] px-4 py-2 border-b border-[#1a2a28]">
+    <div className="flex bg-[#0f172a] px-4 py-2 border-b border-[#1a2a28]">
       {screens.map((screen) => (
         <div key={screen.id} onContextMenu={(e) => {
           e.preventDefault();

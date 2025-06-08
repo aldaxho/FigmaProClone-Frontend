@@ -9,6 +9,7 @@ interface Proyecto {
   proyectoNombre: string;
   emisorNombre: string;
   descripcion: string;
+  tipo: string;
 }
 interface Invitacion {
   id: number;
@@ -21,7 +22,7 @@ export default function Projects() {
   const [nombre, setNombre] = useState('');
   const navigate = useNavigate();
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
-
+  const [tipo, setTipo] = useState('flutter-mobile');
   const fetchProjects = async () => {
     try {
       const res = await axios.get('/projects');
@@ -53,6 +54,7 @@ export default function Projects() {
       const res = await axios.post('/projects', {
         nombre,
         descripcion: JSON.stringify([]),
+        tipo,
       });
       setProyectos((prev) => [...prev, res.data]);
       setNombre('');
@@ -93,7 +95,7 @@ export default function Projects() {
     </button>
   </div>
 
-  <div className="bg-[#0d1614] rounded-2xl p-8 shadow-xl flex flex-col items-center">
+  <div className=" rounded-2xl p-8 shadow-xl flex flex-col items-center">
     <form onSubmit={handleCreate} className="flex flex-col items-center gap-4 w-full mb-8">
       <input
         type="text"
@@ -103,6 +105,16 @@ export default function Projects() {
         required
         className="w-full max-w-md shadow-md"
       />
+      <select
+  value={tipo}
+  onChange={(e) => setTipo(e.target.value)}
+  className="w-full max-w-md shadow-md"
+>
+  <option value="flutter-mobile">Flutter Móvil</option>
+  <option value="web">Web</option>
+  <option value="otro">Otro</option>
+</select>
+
       <button
         type="submit"
         className="w-full max-w-md bg-green-600 hover:bg-green-700 shadow-md py-3 rounded-lg text-lg font-semibold"
@@ -116,7 +128,14 @@ export default function Projects() {
         <div
           key={p.id}
           className="bg-[#0a1412] w-full max-w-md p-6 rounded-lg shadow-md hover:shadow-green-400/50 transition-all duration-300 cursor-pointer"
-          onClick={() => navigate(`/editor/${p.id}`)}
+          onClick={() => {
+            if (p.tipo === 'flutter-mobile') {
+              navigate(`/flutter-editor/${p.id}`);
+            } else {
+              navigate(`/editor/${p.id}`);
+            }
+          }}
+
         >
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-bold text-green-200">{p.nombre}</h2>

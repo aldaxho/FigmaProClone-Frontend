@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Projects from './pages/Projects';
 import EditorApp from './pages/EditorApp';
+import FlutterEditorApp from './pages/FlutterEditorApp';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
@@ -26,8 +27,16 @@ export default function App() {
             <EditorApp />
           </ProtectedRoute>
         }
+      />  <Route
+        path="/flutter-editor"
+        element={
+          <ProtectedRoute>
+            <FlutterEditorApp />
+          </ProtectedRoute>
+        }
       />
       <Route path="/editor/:id" element={<EditorApp />} />
+      <Route path="/flutter-editor/:id" element={<FlutterEditorApp />} />
 
     </Routes>
   );
