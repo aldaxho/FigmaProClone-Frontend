@@ -631,7 +631,7 @@ const handleExport = async () => {
   setShowExportModal(true);
   setLoadingInst(true);
   try {
-    const res = await fetch(`http://localhost:5000/api/export/instructions/${projectId}`);
+    const res = await fetch(`https://figmaproclone-backend-vow0.onrender.com/api/export/instructions/${projectId}`);
     const data = await res.json();
     console.log('🧾 typeof', typeof data.instructions); // → debería decir "string"
 console.log(data.instructions); setInstructions(data.instructions);

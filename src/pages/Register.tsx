@@ -12,7 +12,7 @@ export default function Register() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/register', { nombre, email, password });
+      await axios.post('https://figmaproclone-backend-vow0.onrender.com/api/auth/register', { nombre, email, password });
       navigate('/login');
     } catch (err) {
       console.error(err);

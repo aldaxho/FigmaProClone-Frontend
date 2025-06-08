@@ -1,7 +1,7 @@
 export async function generarPantallaDesdeTexto(prompt: string): Promise<Shape[]> {
   console.log("🔍 Prompt enviado a backend:", prompt);
 
-  const response = await fetch("http://localhost:5000/api/generar-ui", {
+  const response = await fetch("https://figmaproclone-backend-vow0.onrender.com/api/generar-ui", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ prompt }),
