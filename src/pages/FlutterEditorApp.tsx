@@ -555,6 +555,58 @@ const emitDragPosition = throttle((shapeId: string, x: number, y: number) => {
       alert("❌ Error al guardar el proyecto");
     }
   };
+//handle de boceto
+const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = async () => {
+    const base64 = reader.result as string;
+
+    try {
+      //cambiar la direccion para el deploy:  https://figmaproclone-backend-vow0.onrender.com
+      //http://localhost:5000
+      const response = await fetch("https://figmaproclone-backend-vow0.onrender.com/api/vision/movil", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ base64Image: base64 }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error del servidor al analizar la imagen");
+      }
+
+      const data = await response.json();
+      const shapes = data.shapes || [];
+
+      shapes.forEach((shape: any) => {
+        const shapeWithDefaults = {
+          id: nanoid(),
+          ...shape,
+          fill:
+            shape.type === "button" ? "#3b82f6"
+            : shape.type === "input" ? "#ffffff"
+            : shape.type === "container" ? "#22d3ee"
+            : shape.type === "sidebar" ? "#1f2937"
+            : "#ccc",
+          fontSize: 16,
+          width: shape.width || 100,
+          height: shape.height || 30,
+        };
+        addShapeToCurrentScreen(shapeWithDefaults);
+      });
+
+      alert("✅ Diseño móvil procesado con éxito");
+    } catch (err) {
+      console.error("❌ Error al subir imagen:", err);
+      alert("❌ Error al analizar el diseño");
+    }
+  };
+
+  reader.readAsDataURL(file);
+};
 
 const handleExportFlutter = async () => {
   if (!projectId) return alert("❌ Proyecto no válido");
@@ -735,6 +787,20 @@ const typeLabels: Record<string, string> = {
             >
               🤖 Generar con IA
             </button>
+            <button
+              className="bg-pink-600 px-4 py-1 rounded"
+              onClick={() => document.getElementById("imageInput")?.click()}
+            >
+              🖼 Cargar diseño móvil
+            </button>
+
+            <input
+              id="imageInput"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
 
               <select
               value={selectedDevice.nombre}

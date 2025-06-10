@@ -2,6 +2,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
+  //cambiar la ruta :https://figmaproclone-backend-vow0.onrender.com 
   baseURL: 'https://figmaproclone-backend-vow0.onrender.com/api',
 });
 
